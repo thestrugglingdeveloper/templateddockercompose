@@ -1,0 +1,33 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        git checkout development; \
+        docker build -t asia.gcr.io/$PROJECT_ID/${gcp-container-registry-name}:$SHORT_SHA .
+    timeout: 3600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia.gcr.io/$PROJECT_ID/${gcp-container-registry-name}:$SHORT_SHA'
+
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh ${user}@${vm} --zone ${zone}  \
+        --command 'sleep 15; \
+        cd $path; \
+        git pull; \
+        TAG=$SHORT_SHA bash deploy.sh backend'
+    timeout: 3600s
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+
+timeout: 7200s
+

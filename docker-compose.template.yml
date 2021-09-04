@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  backend:
+    image: asia.gcr.io/${projectId}/${gcp-container-registry-name}-backend:$BACKENDTAG
+    ports:
+      - 5000:5000
+    networks:
+      - backend
+
+  frontend:
+    image: asia.gcr.io/${projectId}/${gcp-container-registry-name}-frontend:$FRONTENDTAG
+    ports:
+      - 3000:3000
+    networks:
+      - backend
+   
